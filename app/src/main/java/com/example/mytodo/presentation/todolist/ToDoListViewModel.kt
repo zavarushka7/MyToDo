@@ -11,13 +11,16 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
+// ViewModel связывает данные (domain/data) и UI, при этом сохраняя состояние при пересоздании активности
 class ToDoListViewModel @Inject constructor(
+    // Hilt умеет сам создать ToDoListViewModel и инжектить ToDoListRepository в нее
     private val repository: ToDoListRepository
 ) : ViewModel() {
-    private val _state = MutableStateFlow<ToDoListState>(ToDoListState.Loading)
+    private val _state = MutableStateFlow<ToDoListState>(ToDoListState.Loading) // backing property: ты в него пишешь, но не хочешь чтобы кто то еще извне изменял его напрямую
     val state = _state.asStateFlow()
 
     init{
+        // при создании ViewModel сразу запускается загрузка
         loadToDoList()
     }
 

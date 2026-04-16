@@ -25,28 +25,31 @@ import java.util.Locale
 
 @Composable
 fun ToDoListContent(
-    tasks: List<ToDoItem>,
-    newTaskText: String,
-    onTextChange: (String) -> Unit,
-    onToggleTask: (Int, Boolean) -> Unit,
-    onAddClick: () -> Unit,
-    modifier: Modifier = Modifier
+    // Такой подход делает composable независимым от ViewModel: он не знает, откуда приходят данные, а только отображает их и отправляет события наружу. это и есть state hoisting
+    tasks: List<ToDoItem>, // список задач, который надо показать
+    newTaskText: String, // текущий текст в поле ввода
+    onTextChange: (String) -> Unit, // что делать, когда пользователь печатает
+    onToggleTask: (Int, Boolean) -> Unit, // что делать, когда пользователь нажимает чекбокс
+    onAddClick: () -> Unit, // что делать, когда пользователь нажимает кнопку добавить
+    modifier: Modifier = Modifier // внешний способ управлять размером, padding  и положением composable
 ) {
+    // В документации Compose рекомендуют принимать modifier параметром и применять его к корневому элементу composable
     Column(modifier = modifier
-        .fillMaxSize()
-        .padding(horizontal = 16.dp, vertical = 12.dp)){
+        .fillMaxSize() // занять все доступное пространство родителя
+        .padding(horizontal = 16.dp, vertical = 12.dp)) // внутренние отступы, чтобы контент не прилипал к краям
+    {
         OutlinedTextField(
-            value = newTaskText,
-            onValueChange = onTextChange,
-            modifier = Modifier.fillMaxWidth(),
-            label = {Text("Новая задача")},
-            placeholder = {Text("Введите дело")},
-            singleLine = true
+            value = newTaskText, // текст в поле берется из состояния, которое пришло снаружи
+            onValueChange = onTextChange, // при каждом вводе пользователем функция сообщает наверх новое значение
+            modifier = Modifier.fillMaxWidth(), // поле растягивается по ширине
+            label = {Text("Новая задача")}, // подпись поля
+            placeholder = {Text("Введите дело")}, // подсказка, когда поле пустое
+            singleLine = true // ввод в одну строку
 
         )
         Spacer(Modifier.height(8.dp))
         Button(
-            onClick = onAddClick,
+            onClick = onAddClick, // при нажатии вызывает onAddClick
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Добавить")
@@ -64,13 +67,13 @@ fun ToDoListContent(
         }
         Spacer(Modifier.height(32.dp))
         LazyColumn(){
-            items(tasks){ task ->
+            items(tasks){ task -> // для каждого элемента из спика tasks создай одну строку UI
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically // выравнивает чекбокс и текст по одной горизонтальной линии
                 ){
                     Checkbox(
-                        checked = task.isDone,
+                        checked = task.isDone, // текущее состояние задачи
                         onCheckedChange = { checked ->
                             onToggleTask(task.id, checked)}
                     )

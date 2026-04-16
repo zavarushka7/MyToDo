@@ -8,7 +8,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
@@ -16,17 +15,18 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @Composable
 fun ToDoListScreen() {
     val viewModel = hiltViewModel<ToDoListViewModel>()
-    val state by viewModel.state.collectAsStateWithLifecycle()
+    // проще говоря - viewModel.state меняется, Compose это замечает, ToDoListScreen() перерисовываетс, нужная ветка when обновляется
+    val state by viewModel.state.collectAsStateWithLifecycle() // беру StateFlow из ViewModel и превращаю его в Compose State, чтобы UI автоматически перерисовывался при изменениях. collectAsStateWithLifecycle() делает это с учетом жц, то есть собирает flow безопаснее, чем обычный collectAsState(), когда экран реально активен
 
-    Scaffold() {
-        contentPadding ->
+    Scaffold() { // контейнер Material3 для построения экрана.
+        contentPadding -> // отступы, которые Scaffold сам рассчитает для твоего контента
         when (val currentState = state){
             is ToDoListState.Loading -> {
                 ToDoListLoading(
                     modifier = Modifier
                         .fillMaxSize()
-                        .safeDrawingPadding()
-                        .padding(contentPadding)
+                        .safeDrawingPadding() // добавить безопасные отступы, чтобы контент не залезал под системные области
+                        .padding(contentPadding) // учесть внутренние отступы от Scaffold
                 )
             }
             is ToDoListState.Error -> {
@@ -57,9 +57,3 @@ fun ToDoListScreen() {
 }
 
 
-
-@Preview
-@Composable
-private fun Preview(){
-    ToDoListScreen()
-}
